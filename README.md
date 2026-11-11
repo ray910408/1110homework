@@ -2,8 +2,6 @@
 
 用 **LLM Wiki** 當知識庫，製作一份教學型 HTML 簡報，讓沒接觸過資安的人也能理解 OWASP Top 10 for Agentic Applications (2026)。
 
-[![CI/CD](https://github.com/ray910408/1110homework/actions/workflows/pages.yml/badge.svg)](https://github.com/ray910408/1110homework/actions/workflows/pages.yml)
-
 **線上簡報：https://ray910408.github.io/1110homework/**
 
 ## 怎麼看
@@ -28,12 +26,14 @@ python -m http.server 8765
 ## 結構
 
 ```
+AGENTS.md   給 AI 的規則：專案目的、網頁風格、頁面結構、檔案與命名、新增步驟、修改規則
+index.html  教學簡報（style.css 樣式、app.js 互動）
 raw/        6 篇 ingest 來源（S1–S6，改寫筆記 + URL + 可信度）
 wiki/       LLM Wiki：concepts/（9 個概念）、risks/（ASI01–ASI10）、index、log、discussion
+templates/  新增頁面的模板（risk / concept / source）
 tools/      wiki.mjs — lint + 產生 graph + 把 Wiki 抽成簡報資料
 graph/      graph.json、wiki-data.js（自動產生，勿手改）
 docs/       workflow.md — loop/graph 設計與反思
-index.html  教學簡報
 ```
 
 ## 重新產生 / 檢查
@@ -42,16 +42,7 @@ index.html  教學簡報
 node tools/wiki.mjs
 ```
 
-檢查斷鏈、孤兒頁、缺來源、ASI 官方名稱、段落格式、簡報引用；通過才會更新 `graph/`。exit code 非 0 代表有問題。
-
-## CI/CD（`.github/workflows/pages.yml`）
-
-| 時機 | 做什麼 |
-|---|---|
-| 每次 push / PR（CI） | ① `node tools/wiki.mjs` lint ② 自我測試：故意把 ASI03 名稱寫錯，lint 必須失敗 ③ 由 Wiki 重新產生 `graph/` |
-| push 到 `main` 且 CI 通過（CD） | 打包整個網站並部署到 GitHub Pages |
-
-改 Wiki 後只要 push，簡報、風險卡、知識圖譜就會自動更新；lint 沒過就不會部署。
+檢查斷鏈、孤兒頁、未登記到目錄、缺來源、檔名與位置、ASI 官方名稱、段落格式、簡報引用；通過才會更新 `graph/`。exit code 非 0 代表有問題。
 
 ## 來源
 

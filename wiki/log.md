@@ -39,3 +39,10 @@ tags: [process]
 - ❌ 瀏覽器實測：workflow 圖上排的 loop 曲線超出 SVG 上緣、標籤看不到 → 節點整體下移 40px。
 - ❌ 用 `file://` 開啟時，預覽工具以快照載入、讀不到 `graph/wiki-data.js` → 改用本機 http server 檢查；README 註明兩種開法。
 - ✓ 18 張逐一開過，互動元件（元件圖、注入示範、三要素開關、風險卡 modal、架構地圖、測驗、矩陣、知識圖譜、workflow 圖）皆可操作，console 無錯誤。
+
+## [2026-11-11] schema | AGENTS.md 改版
+- AGENTS.md 改成六段：專案目的、網頁風格、頁面結構、檔案與命名、新增內容的步驟、AI 修改規則（含完成前檢查清單）。
+- 新增 `templates/`（risk / concept / source）：新增頁面一律「複製模板 → 照固定段落寫 → 登記到 index」。
+- 簡報拆成 `index.html` + `style.css` + `app.js`，顏色集中在 `:root` 變數。
+- lint 新增：檔名 kebab-case、頁面放對資料夾、風險頁檔名與 `asi` 一致、來源檔名格式、**每頁都要登記在 index**。
+  - 變異測試：放一個大寫檔名、放錯資料夾、沒登記的假頁面，lint 報出 6 個錯誤；刪除後恢復 0 錯誤。

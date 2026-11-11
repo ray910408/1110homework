@@ -60,6 +60,18 @@ for (const p of pages) {
 }
 for (const p of pages) if (p.id !== 'index' && inbound[p.id] === 0) err(p.file, '孤兒頁（沒有任何頁連到它）');
 
+// ---- 命名、位置、登記（AGENTS.md「檔案與命名」） ----
+const DIR = { risk: 'wiki/risks', concept: 'wiki/concepts', meta: 'wiki' };
+const indexLinks = new Set((pages.find((p) => p.id === 'index') || { links: [] }).links);
+for (const p of pages) {
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(p.id)) err(p.file, '檔名要用小寫 kebab-case');
+  if (!DIR[p.fm.type]) err(p.file, `type 必須是 ${Object.keys(DIR).join(' / ')}`);
+  else if (path.posix.dirname(p.file) !== DIR[p.fm.type]) err(p.file, `${p.fm.type} 頁要放在 ${DIR[p.fm.type]}/`);
+  if (p.fm.type === 'risk' && !p.id.startsWith((p.fm.asi || '').toLowerCase() + '-')) err(p.file, `檔名要以 ${(p.fm.asi || 'asiXX').toLowerCase()}- 開頭`);
+  if (p.id !== 'index' && !indexLinks.has(p.id)) err(p.file, '沒有登記在 wiki/index.md');
+}
+for (const f of fs.readdirSync(RAW)) if (!/^S\d+-[a-z0-9]+(-[a-z0-9]+)*\.md$/.test(f)) err(`raw/${f}`, '來源檔名要是 S{編號}-{kebab-case}.md');
+
 // ---- Lint 5：風險頁 → 簡報資料（抽不到就是錯） ----
 const risks = pages.filter((p) => p.fm.type === 'risk').sort((a, b) => a.fm.asi.localeCompare(b.fm.asi)).map((p) => {
   const r = {
@@ -72,7 +84,8 @@ const risks = pages.filter((p) => p.fm.type === 'risk').sort((a, b) => a.fm.asi.
     mapping: plain(section(p.body, '對照').replace(/^- /, '')),
     sources: p.fm.sources,
   };
-  if (OFFICIAL[r.id] !== r.name) err(p.file, `官方名稱不符：「${r.name}」應為「${OFFICIAL[r.id]}」`);
+  if (!OFFICIAL[r.id]) err(p.file, `${r.id} 不是官方 ASI 編號（ASI01–ASI10）`);
+  else if (OFFICIAL[r.id] !== r.name) err(p.file,`官方名稱不符：「${r.name}」應為「${OFFICIAL[r.id]}」`);
   for (const k of ['zh', 'oneLiner', 'analogy', 'scenario', 'mapping']) if (!r[k]) err(p.file, `抽不到「${k}」段落`);
   if (r.defenses.length < 3) err(p.file, '「怎麼防」少於 3 點');
   return r;
