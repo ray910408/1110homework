@@ -664,7 +664,7 @@ const WF = [
   { id: 'outline', x: 200, y: 210, t: '6 整理重點', d: '為每張投影片挑 Wiki 頁、決定互動元件；每張標上 data-wiki。', rep: '缺內容 → 回到 1 補 ingest。' },
   { id: 'gen', x: 20, y: 210, t: '7 產生簡報', d: '寫 index.html：卡片、測驗、對照矩陣、知識圖譜都從 wiki-data.js 自動產生。', rep: '檢查失敗就重產。' },
   { id: 'check', x: 20, y: 350, t: '8 檢查簡報', d: 'Lint 第 6 項（data-wiki、官方名稱）+ 瀏覽器實際點過每一頁、看 console 有無錯誤。', rep: '失敗 → 回到 7；知識錯 → 回到 3。' },
-  { id: 'push', x: 380, y: 350, t: '9 Push', d: '全部通過後 commit 並 push 到 GitHub。', rep: '一次。' },
+  { id: 'push', x: 380, y: 350, t: '9 Push → CI/CD', d: 'push 到 GitHub 後，GitHub Actions 自動跑 lint 與自我測試（故意寫錯官方名稱，lint 必須失敗），通過才由 Wiki 重新產生 graph/ 並部署到 GitHub Pages。', rep: '每次 push 都跑；CI 失敗就不部署。' },
 ];
 const WE = [['discuss', 'ingest'], ['ingest', 'verify'], ['verify', 'write'], ['write', 'lint'], ['lint', 'query'], ['query', 'outline'], ['outline', 'gen'], ['gen', 'check'], ['check', 'push']];
 const WL = [['verify', 'ingest', '驗證失敗'], ['lint', 'write', 'lint 失敗'], ['write', 'ingest', '下一篇來源'], ['outline', 'ingest', '缺內容'], ['check', 'gen', '檢查失敗']];

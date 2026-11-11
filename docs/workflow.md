@@ -14,7 +14,7 @@ flowchart LR
     Q --> O[6 整理重點<br>每張投影片標 data-wiki]
     O --> G[7 產生簡報<br>index.html]
     G --> C[8 檢查簡報<br>lint + 瀏覽器實測]
-    C --> P[9 Push]
+    C --> P[9 Push → CI/CD<br>GitHub Actions：lint + 自我測試 → 部署 Pages]
 
     V -. 驗證失敗 .-> I
     W -. 下一篇來源 .-> I

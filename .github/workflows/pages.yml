@@ -1,0 +1,59 @@
+# CI：每次 push / PR 都跑 Wiki lint + lint 自我測試
+# CD：main 分支通過 CI 後，由 Wiki 重新產生 graph/ 並部署到 GitHub Pages
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Wiki lint（斷鏈、孤兒頁、來源、官方名稱、段落格式、簡報引用）
+        run: node tools/wiki.mjs
+
+      - name: Lint 自我測試（故意寫錯官方名稱，lint 必須失敗）
+        run: |
+          cp index.html "$RUNNER_TEMP/index.html"
+          sed -i 's|<h2>今天的路線</h2>|<h2>今天的路線 ASI03 Identity Theft</h2>|' index.html
+          grep -q "ASI03 Identity Theft" index.html || { echo "::error::變異沒注入成功，請更新自我測試"; exit 1; }
+          if node tools/wiki.mjs; then echo "::error::lint 沒抓到錯誤的官方名稱"; exit 1; fi
+          cp "$RUNNER_TEMP/index.html" index.html
+
+      - name: 由 Wiki 重新產生 graph/
+        run: node tools/wiki.mjs
+
+      - name: 打包網站
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: .
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: ci
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v6
+      - id: deploy
+        uses: actions/deploy-pages@v5
